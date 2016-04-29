@@ -59,13 +59,13 @@ var count = 0;
 obj.forEachAll(function(key, value, path) {
 	// key : "first"
 	// value : "Jin Hoon"
-	// path : ["name", "first"]
+	// path : ["name"]
 	// ...
-	
+	console.log(key + "|" + value + "|" + path)
 	count++;
 	
 });
-count; 	//count = 4
+count; 	//count = 7
 ```
 
 ## Namespace conflicts
