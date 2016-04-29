@@ -7,29 +7,38 @@ Define:
 
 ```javascript
 var obj = ObjectWrapper({
-	name: {
-		first : "Jin Hoon",
-		last: "Kim"
-	},
-	nickname: "haloper",
-	hobby: ["game", "movie"]
-});
+				name: {
+					first : "Jin Hoon",
+					last: "Kim",
+					wife: {
+						name : "Nara"
+					}
+				},
+				nickname: "haloper",
+				hobby: ["game", "movie"]
+			});
 ```
 
-Get, Set:
+Get, Set, Value:
 
 ```javascript
-obj.get("name").get("first"); 	//"Jin Hoon"
-obj.get("hobby"); 					//["game", "movie"]
+obj.get("name").get("first"); 	// "Jin Hoon"
+obj.get("hobby"); 					// ["game", "movie"]
+obj.value();							// obj object
+obj.get("name").value();			// name object
 
 obj.get("name").set("full name", "Kim Jin Hoon");
-obj.get("name").get("full name");	//"Kim Jin Hoon";
+obj.get("name").get("full name");						//"Kim Jin Hoon";
+
+obj.get(["name", "first"]);									// "Jin Hoon"
+obj.set(["name", "wife", "nickname"], "shine");
+obj.get("name").get(["wife", "nickname"]); 			//shine"
 ```
 
-Parent, Child and Root
+Parent, Child and Root:
 
 ```javascript
-var child = obj.child("name").child("first"); 	//"Jin Hoon"
+var child = obj.child("name").child("wife"); 	// wife wrapped object
 child.parent().value(); 								// name object
 child.parent().parent().value(); 					// root object
 child.root().value();									// root object
@@ -41,12 +50,6 @@ Contain:
 obj.get("name").contain("first"); 	//true
 obj.contain("name"); 					//true
 obj.contain("first"); 					//false
-```
-
-Read all visible cookies:
-
-```javascript
-Cookies.get(); // => { name: 'value' }
 ```
 
 ForEachAll:
