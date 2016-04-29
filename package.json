@@ -1,0 +1,21 @@
+{
+  "name": "config",
+  "version": "0.0.1",
+  "description": "Javascript API to manage config information",
+  "main": "src/js-config.js",
+  "keywords": [
+    "config",
+    "js-config",
+    "amd",
+    "commonjs",
+    "client"
+  ],
+  "maintainers": [
+    {
+      "name": "haloper",
+      "email": "haloper20@gmail.com"
+    }
+  ],
+  "author": "haloper",
+  "license": "MIT"
+}
