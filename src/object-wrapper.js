@@ -6,9 +6,9 @@
  */
 (function (factory) {
 	'use strict';
-	if (typeof define === 'function' && define.amd) { //AMD(RequireJS) 사용 시
+	if (typeof define === 'function' && define.amd) { //for AMD(RequireJS)
 		define(factory);
-	} else if (typeof exports === 'object') { //CommonJS 사용 시
+	} else if (typeof exports === 'object') { //for CommonJS
 		module.exports = factory();
 	} else {
 		var oldObjectWrapper = window.ObjectWrapper;
@@ -102,6 +102,10 @@
 		}
 		
 		var pathObj = this.getPathObj(_path);
+
+		if(typeof pathObj === 'undefined') {
+			return pathObj;
+		}
 		
 		if(this.hasChild(pathObj[key])) {
 			var subPath = this.path.slice(0);
@@ -170,16 +174,37 @@
 		if(!(path instanceof Array)) {
 			path = this.path;
 		}
+		var callEvenPath = arguments.length > 2 ? arguments[2] : undefined;
 		this.forEach(function(key, value, _path) {
 			if(this.hasChild(value)) {
+				if(callEvenPath) {
+					callback.call(this, key, value, _path);	
+				}
 				var subPath = _path.slice(0);
 				subPath.push(key);
-				this.forEachAll(callback, subPath);
+				this.forEachAll(callback, subPath, callEvenPath);
 			}
 			else {
-				callback(key, value, _path);
+				callback.call(this, key, value, _path);
 			}
 		}, path);
+	}
+
+	api.prototype.findKey = function(keyword) {
+		var result = [];
+		this.forEachAll(function(key, value, path) {
+			if(keyword.test(key)) {
+				if(this.hasChild(value)) {
+					var subPath = path.slice(0);
+					subPath.push(key);
+					result.push(new api(this.data, subPath));	
+				}
+				else {
+					result.push(value);
+				}
+			}
+		}, undefined, true);
+		return result;
 	}
 	
 	return factory;

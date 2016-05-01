@@ -7,7 +7,7 @@ describe("Object Wrapper", function() {
 			objectWrapper = ObjectWrapper();
 			objectWrapper.set("user name", "hoon")
 			.set("sex", "male")
-			.set("!@#$%^&*()';[]\<>/ - key", "!@#$%^&*()';[]\<>/ - value");
+			.set(",.!@#$%^&*()';[]\<>/ - key", ",.!@#$%^&*()';[]\<>/ - value");
 		});
 
 		it("Get existent key", function() {
@@ -28,6 +28,7 @@ describe("Object Wrapper", function() {
 			expect(objectWrapper.contain("user name")).toBe(true);
 			objectWrapper.remove("user name");
 			expect(objectWrapper.contain("user name")).toBe(false);
+			expect(objectWrapper.get("user name")).toBe(undefined);
 		});
 		
 		it("Get keys and values", function() {
@@ -54,7 +55,7 @@ describe("Object Wrapper", function() {
 				.set("user", "name", "last", "kim")
 				.set("user", "sex", "male")
 				.set("user", "last login", new Date())
-				.set("user", "hobby", ["programming", "swimming"])
+				.set("user", "hobby", ["programming", "swimming"]);
 		});
 		
 		it("Get value on the chain", function() {
@@ -63,7 +64,10 @@ describe("Object Wrapper", function() {
 			expect(date instanceof Date).toBe(true);
 			var hobby = objectWrapper.get("user").get("hobby");
 			expect(hobby instanceof Array).toBe(true);
-			
+
+			expect(objectWrapper.get(["user", "age", "real"])).toBeUndefined();
+
+
 		});
 		
 		it("Set value on the chain", function() {
@@ -94,6 +98,11 @@ describe("Object Wrapper", function() {
 			expect(objectWrapper.get(["user", "name", "full name"])).toBe("Kim Han Kyul");
 			expect(objectWrapper.get(["user", "name", "full name"])).toBe("Kim Han Kyul");
  		});
+
+ 		it("Find keyword from keys", function() {
+ 			var result = objectWrapper.findKey(/a/);
+ 			expect(result.length).toBe(4);
+ 		});
 		
 		it("Wrapping the object already existing", function() {
 			var obj = ObjectWrapper({
@@ -109,62 +118,6 @@ describe("Object Wrapper", function() {
 			
 			obj.get("name").set("full name", "Kim Jin Hoon");
 			expect(obj.get("name").get("full name")).toBe("Kim Jin Hoon");
-		});
-		
-		it("sample code", function() {
-			//define
-			var obj = ObjectWrapper({
-				name: {
-					first : "Jin Hoon",
-					last: "Kim",
-					wife: {
-						name : "Nara"
-					}
-				},
-				nickname: "haloper",
-				hobby: ["game", "movie"]
-			});
-
-			//get, set, value
-			obj.get("name").get("first"); 	// "Jin Hoon"
-			obj.get("hobby"); 					// ["game", "movie"]
-			obj.value();							// obj object
-			obj.get("name").value();			// name object
-
-			obj.get("name").set("full name", "Kim Jin Hoon");
-			obj.get("name").get("full name");						//"Kim Jin Hoon";
-			
-			obj.get(["name", "first"]);									// "Jin Hoon"
-			obj.set(["name", "wife", "nickname"], "shine");
-			obj.get("name").get(["wife", "nickname"]); 			//shine"
-
-			//parent, child and root
-			var child = obj.child("name").child("wife"); 	// wife wrapped object
-			child.parent().value(); 								// name object
-			child.parent().parent().value(); 					// root object
-			child.root().value();									// root object
-
-			//contain
-			obj.get("name").contain("first"); 	//true
-			obj.contain("name"); 					//true
-			obj.contain("first"); 					//false
-
-			//forEachAll
-			var count = 0;
-			obj.forEachAll(function(key, value, path) {
-				// key : "first"
-				// value : "Jin Hoon"
-				// path : ["name"]
-				// ...
-				console.log(key + "|" + value + "|" + path)
-				count++;
-				
-			});
-			count; 	//count = 7
-
-			
-			expect(true).toBe(true);
-
 		});
 	});
 	
