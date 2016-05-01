@@ -68,6 +68,13 @@ obj.forEachAll(function(key, value, path) {
 count; 	//count = 7
 ```
 
+FindKeys:
+
+```javascript
+var result = objectWrapper.findKey(/wife/);
+result.length; 		// 1
+```
+
 ## Namespace conflicts
 
 ```javascript
