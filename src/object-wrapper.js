@@ -102,11 +102,14 @@
 					target[i] = this.cloneObject(source[i]);
 				}
 			}
+			else if(!this.hasChild(source)){ //{}
+				target = {};
+			}
 			return target;
 		}
 
 		this.equalObject = function (source, target) {
-			if(typeof source !== "object" && typeof target !== "object") {
+			if(typeof source !== "object" || typeof target !== "object") {
 				return source === target;	
 			}
 			else if(source instanceof Date && target instanceof Date) {
@@ -119,6 +122,12 @@
 					}
 				}
 				return true;
+			}
+			else if(!this.hasChild(source) && !this.hasChild(target)) {
+				return true;
+			}
+			else {
+				return false;
 			}
 
 		}
@@ -148,10 +157,14 @@
 	api.prototype.get = function(key) {
 		
 		var _path = this.path;
+		if(arguments.length > 1) {
+			key = [].slice.call(arguments);	
+		}
 		if(key instanceof Array) {
 			_path = this.path.concat(key.slice(0, -1));
 			key = key[key.length - 1];
 		}
+
 		
 		var pathObj = this.getPathObj(_path);
 
@@ -271,6 +284,7 @@
 		var result = false;
 		var size = 0;
 		this.forEachAll(function(key, value, path) {
+			console.log(key + " " + this.get("user", "last login"));
 			var snapKey = [].concat(path).concat([key]).join("_");
 			if(!this.equalObject(value, this.snapData[snapKey])) {
 				result = true;
