@@ -73,6 +73,55 @@
 				&& Object.keys(obj).length > 0
 				&& !(obj instanceof Array);
 		}
+
+		this.checkKeyArray = function(keyArray) {
+			var isOK = true;
+			if(!(keyArray instanceof Array) || keyArray.length === 0) {
+				isOK = false;
+			}
+			keyArray.forEach(function(key) {
+				if(typeof key === "object") {
+					isOK = false;
+				}
+			});
+			return isOK;
+		}
+
+		this.cloneObject = function (source) {
+			var target;
+			if(typeof source !== "object") {
+				target = source;	
+			}
+			else if(source instanceof Date) {
+				target = new Date();
+				target.setTime(source.getTime());
+			}
+			else if(source instanceof Array) {
+				target = [];
+				for(var i=0;i<source.length;i++) {
+					target[i] = this.cloneObject(source[i]);
+				}
+			}
+			return target;
+		}
+
+		this.equalObject = function (source, target) {
+			if(typeof source !== "object" && typeof target !== "object") {
+				return source === target;	
+			}
+			else if(source instanceof Date && target instanceof Date) {
+				return source.getTime() === target.getTime();
+			}
+			else if(source instanceof Array && target instanceof Array) {
+				for(var i=0;i<source.length;i++) {
+					if(!this.equalObject(source[i], target[i])) {
+						return false;
+					}
+				}
+				return true;
+			}
+
+		}
 	}
 	
 	api.prototype.clear = function() {
@@ -89,6 +138,9 @@
 			var argus = [].slice.call(arguments);
 			keyArray = argus.slice(0, -1);
 			value = argus[argus.length - 1];
+		}
+		if(!this.checkKeyArray(keyArray)) {
+			throw Error("Key is not valid : " + keyArray);
 		}
 		return this.setArray(keyArray, value);
 	}
@@ -207,5 +259,27 @@
 		return result;
 	}
 	
+	api.prototype.snapshot = function() {
+		this.snapData = {};
+		this.forEachAll(function(key, value, path) {
+			var snapKey = [].concat(path).concat([key]).join("_");
+			this.snapData[snapKey] = this.cloneObject(value);
+		});
+	}
+
+	api.prototype.changed = function(callback) {
+		var result = false;
+		this.forEachAll(function(key, value, path) {
+			var snapKey = [].concat(path).concat([key]).join("_");
+			if(!this.equalObject(value, this.snapData[snapKey])) {
+				result = true;
+			}
+			if(callback) {
+				callback(key, value, this.snapData[snapKey], path);
+			}
+		});
+		return result;
+	}
+
 	return factory;
 }));

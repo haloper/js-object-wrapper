@@ -99,6 +99,18 @@ describe("Object Wrapper", function() {
 			expect(objectWrapper.get(["user", "name", "full name"])).toBe("Kim Han Kyul");
  		});
 
+ 		it("Wrong input test", function() {
+ 			expect(function() {
+ 				objectWrapper.set(["user", "name", "full name", "test"]);
+ 			}).toThrow();
+ 			expect(function() {
+ 				objectWrapper.set();
+ 			}).toThrow();
+ 			expect(function() {
+ 				objectWrapper.set("aaa");
+ 			}).toThrow();
+ 		})
+
  		it("Find keyword from keys", function() {
  			var result = objectWrapper.findKey(/a/);
  			expect(result.length).toBe(4);
@@ -118,6 +130,21 @@ describe("Object Wrapper", function() {
 			
 			obj.get("name").set("full name", "Kim Jin Hoon");
 			expect(obj.get("name").get("full name")).toBe("Kim Jin Hoon");
+		});
+
+		it("snapshot and check changed values", function() {
+			objectWrapper.snapshot();
+			expect(objectWrapper.changed()).toBe(false);
+			objectWrapper.set(["user", "name", "full name"], "Won Bin");
+			expect(objectWrapper.changed()).toBe(true);
+			objectWrapper.set(["user", "name", "full name"], "Kim Han Kyul");
+			expect(objectWrapper.changed()).toBe(false);
+			objectWrapper.set(["user", "name", "full name"], ["Kim Han Kyul"]);
+			expect(objectWrapper.changed()).toBe(true);
+			objectWrapper.set(["user", "last login"], new Date(1));
+			expect(objectWrapper.changed()).toBe(true);
+			objectWrapper.set(["user", "last login"], "yesterday");
+			expect(objectWrapper.changed()).toBe(true);
 		});
 	});
 	
