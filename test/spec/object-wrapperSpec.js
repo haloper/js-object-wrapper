@@ -62,8 +62,17 @@ describe("Object Wrapper", function() {
 			expect(objectWrapper.get("user").get("name").get("last")).toBe("kim");
 			var date = objectWrapper.get("user").get("last login");
 			expect(date instanceof Date).toBe(true);
+			var date2 = objectWrapper.get("user", "last login");
+			expect(date2 instanceof Date).toBe(true);
+			var date3 = objectWrapper.get(["user", "last login"]);
+			expect(date3 instanceof Date).toBe(true);
+
 			var hobby = objectWrapper.get("user").get("hobby");
 			expect(hobby instanceof Array).toBe(true);
+			var hobby2 = objectWrapper.get("user", "hobby");
+			expect(hobby2 instanceof Array).toBe(true);
+			var hobby3 = objectWrapper.get(["user", "hobby"]);
+			expect(hobby3 instanceof Array).toBe(true);
 
 			expect(objectWrapper.get(["user", "age", "real"])).toBeUndefined();
 
@@ -155,6 +164,13 @@ describe("Object Wrapper", function() {
 			expect(objectWrapper.changed()).toBe(false);
 			objectWrapper.set(["user", "last login", "add property"], "added");
 			expect(objectWrapper.changed()).toBe(true);
+
+			objectWrapper.snapshot();
+			objectWrapper.set(["user", "name", "subname"], {});
+			expect(objectWrapper.changed()).toBe(true);
+			objectWrapper.snapshot();
+			expect(objectWrapper.changed()).toBe(false);
+
 
 		});
 	});
