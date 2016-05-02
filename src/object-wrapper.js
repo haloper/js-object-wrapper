@@ -284,7 +284,6 @@
 		var result = false;
 		var size = 0;
 		this.forEachAll(function(key, value, path) {
-			console.log(key + " " + this.get("user", "last login"));
 			var snapKey = [].concat(path).concat([key]).join("_");
 			if(!this.equalObject(value, this.snapData[snapKey])) {
 				result = true;
