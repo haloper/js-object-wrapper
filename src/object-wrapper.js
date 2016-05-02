@@ -269,6 +269,7 @@
 
 	api.prototype.changed = function(callback) {
 		var result = false;
+		var size = 0;
 		this.forEachAll(function(key, value, path) {
 			var snapKey = [].concat(path).concat([key]).join("_");
 			if(!this.equalObject(value, this.snapData[snapKey])) {
@@ -277,7 +278,11 @@
 			if(callback) {
 				callback(key, value, this.snapData[snapKey], path);
 			}
+			size++;
 		});
+		if(Object.keys(this.snapData).length !== size) {
+			result = true;
+		}
 		return result;
 	}
 

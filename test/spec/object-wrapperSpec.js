@@ -145,6 +145,17 @@ describe("Object Wrapper", function() {
 			expect(objectWrapper.changed()).toBe(true);
 			objectWrapper.set(["user", "last login"], "yesterday");
 			expect(objectWrapper.changed()).toBe(true);
+
+			objectWrapper.snapshot();
+			expect(objectWrapper.changed()).toBe(false);
+			objectWrapper.get("user").remove("last login");
+			expect(objectWrapper.changed()).toBe(true);
+
+			objectWrapper.snapshot();
+			expect(objectWrapper.changed()).toBe(false);
+			objectWrapper.set(["user", "last login", "add property"], "added");
+			expect(objectWrapper.changed()).toBe(true);
+
 		});
 	});
 	
