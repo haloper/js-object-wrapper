@@ -71,8 +71,19 @@ count; 	//count = 7
 FindKeys:
 
 ```javascript
-var result = objectWrapper.findKey(/wife/);
+var result = obj.findKey(/wife/);
 result.length; 		// 1
+```
+
+Snapshot and check change:
+
+```javascript
+obj.snapshot();
+obj.get("name").get("first"); 				// Jin Hoon
+obj.get("name").set("first", "Ha Ram");
+obj.changed();								// true
+obj.get("name").set("first", "Jin Hoon");
+obj.changed();								// false
 ```
 
 ## Namespace conflicts
