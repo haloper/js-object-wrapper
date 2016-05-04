@@ -59,7 +59,9 @@ describe("Object Wrapper", function() {
 		});
 		
 		it("Get value on the chain", function() {
+
 			expect(objectWrapper.get("user").get("name").get("last")).toBe("kim");
+
 			var date = objectWrapper.get("user").get("last login");
 			expect(date instanceof Date).toBe(true);
 			var date2 = objectWrapper.get("user", "last login");
@@ -75,6 +77,11 @@ describe("Object Wrapper", function() {
 			expect(hobby3 instanceof Array).toBe(true);
 
 			expect(objectWrapper.get(["user", "age", "real"])).toBeUndefined();
+
+			expect(objectWrapper.get("host", "empty", "hi")).toBeUndefined();
+
+			expect(objectWrapper.get("user", "name").get("last")).toBe("kim");
+			expect(objectWrapper.get(["user", "name"]).get("last")).toBe("kim");
 
 
 		});
@@ -168,9 +175,12 @@ describe("Object Wrapper", function() {
 			objectWrapper.snapshot();
 			objectWrapper.set(["user", "name", "subname"], {});
 			expect(objectWrapper.changed()).toBe(true);
+			
 			objectWrapper.snapshot();
 			expect(objectWrapper.changed()).toBe(false);
-
+			objectWrapper.set(["add", "tools", "mac"], {});
+			objectWrapper.get("user", "last login").remove("add property");
+			expect(objectWrapper.changed()).toBe(true);
 
 		});
 	});

@@ -51,6 +51,9 @@
 			if( path instanceof Array) {
 				for(var i=0;i<path.length;i++) {
 					retObj = retObj[path[i]];
+					if(typeof retObj === "undefined") {
+						break;
+					}
 				}
 			}
 			return retObj;
@@ -173,7 +176,7 @@
 		}
 		
 		if(this.hasChild(pathObj[key])) {
-			var subPath = this.path.slice(0);
+			var subPath = _path.slice(0);
 			subPath.push(key);
 			return new api(this.data, subPath);
 		}
@@ -283,17 +286,27 @@
 	api.prototype.changed = function(callback) {
 		var result = false;
 		var size = 0;
-		this.forEachAll(function(key, value, path) {
+		var snapshotKeys = Object.keys(this.snapData);
+		this.forEachAll(function() {
+			var _snapshotKeys = snapshotKeys;
+			return function(key, value, path) {
 			var snapKey = [].concat(path).concat([key]).join("_");
 			if(!this.equalObject(value, this.snapData[snapKey])) {
 				result = true;
+				if(callback) {
+					callback(key, value, this.snapData[snapKey], path);
+				}
 			}
-			if(callback) {
-				callback(key, value, this.snapData[snapKey], path);
-			}
+			_snapshotKeys.splice(_snapshotKeys.indexOf(snapKey), 1);
 			size++;
-		});
-		if(Object.keys(this.snapData).length !== size) {
+			}
+		}());
+		if(snapshotKeys.length > 0) {
+			if(callback) {
+				snapshotKeys.forEach(function(snapKey) {
+					callback(snapKey, undefined, this.snapData[snapKey], snapKey);
+				});
+			}
 			result = true;
 		}
 		return result;
