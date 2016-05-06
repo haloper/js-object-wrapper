@@ -312,5 +312,35 @@
 		return result;
 	}
 
+	api.prototype.equal = function(obj) {
+		var result = true;
+		//check count of root's child
+		if(Object.keys(this.data).length !== Object.keys(obj).length) {
+			return false;
+		}
+		this.forEachAll(function(key, value, path) {
+			var objValue = obj;
+			for(var i=0;i<path.length;i++) {
+				objValue = objValue[path[i]];
+			}
+			objValue = objValue[key];
+			//check child count
+			if(this.hasChild(value)) {
+				if(Object.keys(value).length !== Object.keys(objValue).length) {
+					result = false;
+				}
+			}
+			else {
+				//check value
+				if(!this.equalObject(value, objValue)) {
+					result = false;
+				}	
+			}
+			
+		}, undefined, true);
+		return result;
+	}
+
+
 	return factory;
 }));

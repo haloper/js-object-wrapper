@@ -86,6 +86,41 @@ obj.get("name").set("first", "Jin Hoon");
 obj.changed();								// false
 ```
 
+Equal:
+
+```javascript
+var source = ObjectWrapper({
+				name: {
+					first : "Jin Hoon",
+					last: "Kim"
+				},
+				nickname: "haloper",
+				hobby: ["game", "movie"],
+				last_login: new Date(1)
+			});
+
+source.equal({
+				name: {
+					first : "Jin Hoon",
+					last: "Kim"
+				},
+				nickname: "haloper",
+				hobby: ["game", "movie"],
+				last_login: new Date(1)
+			});								// true
+
+source.equal({
+				name: {
+					first : "Jin Hoon",
+					last: "Kim"
+				},
+				nickname: "haloper",
+				hobby: ["game", "movie"],
+				last_login: new Date(1),
+				sex: "male"
+			});								// false
+```
+
 ## Namespace conflicts
 
 ```javascript

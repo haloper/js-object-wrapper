@@ -183,6 +183,80 @@ describe("Object Wrapper", function() {
 			expect(objectWrapper.changed()).toBe(true);
 
 		});
+
+		it("Object equal function test", function() {
+			var source = ObjectWrapper({
+				name: {
+					first : "Jin Hoon",
+					last: "Kim"
+				},
+				nickname: "haloper",
+				hobby: ["game", "movie"],
+				last_login: new Date(1)
+			});
+			var same = {
+				name: {
+					first : "Jin Hoon",
+					last: "Kim"
+				},
+				nickname: "haloper",
+				hobby: ["game", "movie"],
+				last_login: new Date(1)
+			}
+			var diff1 = {
+				name: {
+					first : "Jin Hoon",
+					last: "Kim"
+				},
+				nickname: "haloper",
+				hobby: ["game", "movie"],
+				sex: "male",
+				last_login: new Date(1)
+			}
+			var diff2 = {
+				name: {
+					first : "Jin Hoon",
+					last: ["Kim"]
+				},
+				nickname: "haloper",
+				hobby: ["game", "movie"],
+				last_login: new Date(1)
+			}
+			var diff3 = {
+				name: {
+					first : "Jin Hoon",
+					last: "Kim"
+				},
+				hobby: ["game", "movie"],
+				last_login: new Date(1)
+			}
+			var diff4 = {
+				name: {
+					first : "Jin Hoon",
+					last: "Kim"
+				},
+				nickname: "haloper",
+				hobby: ["game", "movie"],
+				last_login: new Date()
+			}
+			var diff5 = {
+				name: {
+					first : "Jin Hoon",
+					last: "Kim",
+					second: "Hello"
+				},
+				nickname: "haloper",
+				hobby: ["game", "movie"],
+				last_login: new Date(1)
+			}
+			expect(source.equal(same)).toBe(true);
+			expect(source.equal(diff1)).toBe(false);
+			expect(source.equal(diff2)).toBe(false);
+			expect(source.equal(diff3)).toBe(false);
+			expect(source.equal(diff4)).toBe(false);
+			expect(source.equal(diff5)).toBe(false);
+
+		});
 	});
 	
  	
