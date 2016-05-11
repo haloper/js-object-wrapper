@@ -45,7 +45,46 @@ describe("Object Wrapper", function() {
 			expect(count).toBe(objectWrapper.keys().length);
 		});
 	});
-	describe("Complex objectWrapper Structure", function() {
+
+	describe("Init object", function() {
+
+		it("Wrapping the object already existing", function() {
+			var obj = ObjectWrapper({
+				name: {
+					first : "Jin Hoon",
+					last: "Kim"
+				},
+				nickname: "haloper",
+				hobby: ["game", "movie"]
+			});
+			expect(obj.get("name").get("first")).toBe("Jin Hoon");
+			expect(obj.get("hobby")).toEqual(jasmine.arrayContaining(["game", "movie"]));
+			
+			obj.get("name").set("full name", "Kim Jin Hoon");
+			expect(obj.get("name").get("full name")).toBe("Kim Jin Hoon");
+		});
+
+
+
+		it("Working with map", function() {
+			var obj = ObjectWrapper({
+				name: {
+					first : "Jin Hoon",
+					last: "Kim"
+				},
+				nick_name: "haloper",
+				__hobby: ["game", "movie"],
+				full_name___: "Kim Jin Hoon"
+			});
+			obj.set("tes__/_/_//__t//__/_", "test!!");
+			var map = obj.toMap();
+			expect(Object.keys(map).length).toBe(6);
+			var fromMap = ObjectWrapper().fromMap(map);
+			expect(obj.equal(fromMap.value())).toBe(true);
+		});
+	});
+
+	describe("Get, Set And Search", function() {
 		var objectWrapper;
 		var valueCount = 6;
 		beforeEach(function() {
@@ -108,44 +147,27 @@ describe("Object Wrapper", function() {
 			expect(count).toBe(valueCount);
 		});
 		
-		it("Duplicated get error", function() {
-			expect(objectWrapper.get(["user", "name", "full name"])).toBe("Kim Han Kyul");
-			expect(objectWrapper.get(["user", "name", "full name"])).toBe("Kim Han Kyul");
-			expect(objectWrapper.get(["user", "name", "full name"])).toBe("Kim Han Kyul");
-			expect(objectWrapper.get(["user", "name", "full name"])).toBe("Kim Han Kyul");
- 		});
 
- 		it("Wrong input test", function() {
- 			expect(function() {
- 				objectWrapper.set(["user", "name", "full name", "test"]);
- 			}).toThrow();
- 			expect(function() {
- 				objectWrapper.set();
- 			}).toThrow();
- 			expect(function() {
- 				objectWrapper.set("aaa");
- 			}).toThrow();
- 		})
 
  		it("Find keyword from keys", function() {
  			var result = objectWrapper.findKey(/a/);
  			expect(result.length).toBe(4);
  		});
 		
-		it("Wrapping the object already existing", function() {
-			var obj = ObjectWrapper({
-				name: {
-					first : "Jin Hoon",
-					last: "Kim"
-				},
-				nickname: "haloper",
-				hobby: ["game", "movie"]
-			});
-			expect(obj.get("name").get("first")).toBe("Jin Hoon");
-			expect(obj.get("hobby")).toEqual(jasmine.arrayContaining(["game", "movie"]));
-			
-			obj.get("name").set("full name", "Kim Jin Hoon");
-			expect(obj.get("name").get("full name")).toBe("Kim Jin Hoon");
+	});
+
+	describe("Change and Equal", function() {
+
+		var objectWrapper;
+
+		beforeEach(function() {
+			objectWrapper = ObjectWrapper();
+			objectWrapper.set("user", "name", "full name", "Kim Han Kyul")
+				.set(["user", "name", "first"], "Han Kyul")
+				.set("user", "name", "last", "kim")
+				.set("user", "sex", "male")
+				.set("user", "last login", new Date())
+				.set("user", "hobby", ["programming", "swimming"]);
 		});
 
 		it("snapshot and check changed values", function() {
@@ -258,6 +280,43 @@ describe("Object Wrapper", function() {
 
 		});
 	});
+
+	describe("Bug Fix", function() {
+
+		var objectWrapper;
+
+		beforeEach(function() {
+			objectWrapper = ObjectWrapper();
+			objectWrapper.set("user", "name", "full name", "Kim Han Kyul")
+				.set(["user", "name", "first"], "Han Kyul")
+				.set("user", "name", "last", "kim")
+				.set("user", "sex", "male")
+				.set("user", "last login", new Date())
+				.set("user", "hobby", ["programming", "swimming"]);
+		});
+
+		it("Duplicated get error", function() {
+			expect(objectWrapper.get(["user", "name", "full name"])).toBe("Kim Han Kyul");
+			expect(objectWrapper.get(["user", "name", "full name"])).toBe("Kim Han Kyul");
+			expect(objectWrapper.get(["user", "name", "full name"])).toBe("Kim Han Kyul");
+			expect(objectWrapper.get(["user", "name", "full name"])).toBe("Kim Han Kyul");
+ 		});
+
+ 		it("Wrong input test", function() {
+ 			expect(function() {
+ 				objectWrapper.set(["user", "name", "full name", "test"]);
+ 			}).toThrow();
+ 			expect(function() {
+ 				objectWrapper.set();
+ 			}).toThrow();
+ 			expect(function() {
+ 				objectWrapper.set("aaa");
+ 			}).toThrow();
+ 		})
+
+	});
 	
+
+
  	
 });

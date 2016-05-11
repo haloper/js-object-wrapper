@@ -121,6 +121,30 @@ source.equal({
 			});								// false
 ```
 
+ToMap and FromMap:
+
+```javascript
+var obj = ObjectWrapper({
+	name: {
+		first : "Jin Hoon",
+		last: "Kim"
+	},
+	nick_name: "haloper",
+	full_name: "Kim Jin Hoon"
+});
+
+var map = obj.toMap();
+//map : {
+//	name_first: "Jin Hoon",
+//	name_last: "Kim",
+//	nick_\name: "haloper",
+//	full_\name: "Kim Jin Hoon"
+//}
+
+var fromMap = ObjectWrapper().fromMap(map);
+obj.equal(fromMap.value());			//true
+```
+
 ## Namespace conflicts
 
 ```javascript

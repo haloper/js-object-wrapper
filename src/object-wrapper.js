@@ -134,6 +134,20 @@
 			}
 
 		}
+
+		this.snapKey = function(path, key) {
+			path.map(function(_path) {
+				return _path.replace(/_/g, "_\\");
+			})
+			key = key.replace(/_/g, "_\\");
+			return [].concat(path).concat([key]).join("_");
+		}
+
+		this.restoreSnapKey = function(snapKey) {
+			return snapKey.split(/_(?!\\)/).map(function(key) {
+				return key.replace(/_\\/g, "_");
+			});
+		}
 	}
 	
 	api.prototype.clear = function() {
@@ -278,7 +292,7 @@
 	api.prototype.snapshot = function() {
 		this.snapData = {};
 		this.forEachAll(function(key, value, path) {
-			var snapKey = [].concat(path).concat([key]).join("_");
+			var snapKey = this.snapKey(path, key);
 			this.snapData[snapKey] = this.cloneObject(value);
 		});
 	}
@@ -290,7 +304,7 @@
 		this.forEachAll(function() {
 			var _snapshotKeys = snapshotKeys;
 			return function(key, value, path) {
-			var snapKey = [].concat(path).concat([key]).join("_");
+			var snapKey = this.snapKey(path, key);
 			if(!this.equalObject(value, this.snapData[snapKey])) {
 				result = true;
 				if(callback) {
@@ -339,6 +353,19 @@
 			
 		}, undefined, true);
 		return result;
+	}
+
+	api.prototype.toMap = function() {
+		this.snapshot();
+		return this.snapData;
+	}
+
+	api.prototype.fromMap = function(map) {
+		for(var key in map) { 
+		    var array = this.restoreSnapKey(key);
+		    this.set(array, map[key]);
+		}
+		return this;
 	}
 
 
