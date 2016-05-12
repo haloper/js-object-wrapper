@@ -86,6 +86,19 @@ obj.get("name").set("first", "Jin Hoon");
 obj.changed();								// false
 ```
 
+Changed callback:
+
+```javascript
+obj.snapshot();
+obj.get("name").set("first", "Han Kyul");
+obj.changed(function(key, current, before, path) {
+	key;		// first
+	current;	// Jin Hoon
+	before;		// Han Kyul
+	path;		// name
+});		// true
+```
+
 Equal:
 
 ```javascript

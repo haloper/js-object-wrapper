@@ -311,15 +311,18 @@
 					callback(key, value, this.snapData[snapKey], path);
 				}
 			}
-			_snapshotKeys.splice(_snapshotKeys.indexOf(snapKey), 1);
+			var index = _snapshotKeys.indexOf(snapKey);
+			if(index >= 0) _snapshotKeys.splice(index, 1);
 			size++;
 			}
 		}());
 		if(snapshotKeys.length > 0) {
 			if(callback) {
 				snapshotKeys.forEach(function(snapKey) {
-					callback(snapKey, undefined, this.snapData[snapKey], snapKey);
-				});
+					var restoreSnapKey = this.restoreSnapKey(snapKey);
+					var key = restoreSnapKey.pop();
+					callback(key, undefined, this.snapData[snapKey], restoreSnapKey);
+				}, this);
 			}
 			result = true;
 		}

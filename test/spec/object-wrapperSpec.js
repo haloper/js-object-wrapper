@@ -206,6 +206,19 @@ describe("Object Wrapper", function() {
 
 		});
 
+		it("Foreach in Change function", function() {
+			objectWrapper.snapshot();
+			objectWrapper.set(["user", "add_property"], "added");
+			objectWrapper.set(["add", "tools", "mac"], {});
+			objectWrapper.set("user", "name", "full name", "Kim Jin Hoon");
+			objectWrapper.get("user").remove("sex");
+			var changeItems = [];
+			objectWrapper.changed(function(key, current, before, path) {
+				changeItems.push({key: key, current: current, before: before, path: path});
+			});
+			expect(changeItems.length).toBe(4);
+		});
+
 		it("Object equal function test", function() {
 			var source = ObjectWrapper({
 				name: {
@@ -271,12 +284,21 @@ describe("Object Wrapper", function() {
 				hobby: ["game", "movie"],
 				last_login: new Date(1)
 			}
+			var diff6 = {
+				name: {
+					first : "Jin Hoon"
+				},
+				nickname: "haloper",
+				hobby: ["game", "movie"],
+				last_login: new Date(1)
+			}
 			expect(source.equal(same)).toBe(true);
 			expect(source.equal(diff1)).toBe(false);
 			expect(source.equal(diff2)).toBe(false);
 			expect(source.equal(diff3)).toBe(false);
 			expect(source.equal(diff4)).toBe(false);
 			expect(source.equal(diff5)).toBe(false);
+			expect(source.equal(diff6)).toBe(false);
 
 		});
 	});
