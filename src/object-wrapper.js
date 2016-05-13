@@ -308,7 +308,7 @@
 			if(!this.equalObject(value, this.snapData[snapKey])) {
 				result = true;
 				if(callback) {
-					callback(key, value, this.snapData[snapKey], path);
+					callback.call(this, key, value, this.snapData[snapKey], path);
 				}
 			}
 			var index = _snapshotKeys.indexOf(snapKey);
@@ -321,7 +321,7 @@
 				snapshotKeys.forEach(function(snapKey) {
 					var restoreSnapKey = this.restoreSnapKey(snapKey);
 					var key = restoreSnapKey.pop();
-					callback(key, undefined, this.snapData[snapKey], restoreSnapKey);
+					callback.call(this, key, undefined, this.snapData[snapKey], restoreSnapKey);
 				}, this);
 			}
 			result = true;
@@ -371,6 +371,9 @@
 		return this;
 	}
 
+	api.prototype.getSnapKey = function(path, key) {
+		return this.snapKey(path, key);
+	}
 
 	return factory;
 }));
