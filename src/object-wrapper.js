@@ -6,11 +6,9 @@
  */
 (function (factory) {
 	'use strict';
-	if (typeof define === 'function' && define.amd) { //for AMD(RequireJS)
-		define(factory);
-	} else if (typeof exports === 'object') { //for CommonJS
-		module.exports = factory();
-	} else {
+	if (typeof define === 'function' && define.amd) define(factory); //for AMD(RequireJS)
+	else if (typeof exports === 'object') module.exports = factory(); //for CommonJS
+	else {
 		var oldObjectWrapper = window.ObjectWrapper;
 		var objectWrapper = window.ObjectWrapper = factory();
 
@@ -26,34 +24,20 @@
 	}
 	
 	function api(source, path) {
-		
-		if(typeof source === "object") {
-			this.data = source;
-		}
-		else {
-			this.data = {};
-		}
-		
-		if(path instanceof Array) {
-			this.path = path;
-		}
-		else {
-			this.path = [];
-		}
+
+		this.data = typeof source === "object" ? source : {};
+
+		this.path = path instanceof Array ? path : [];		
 		
 		this.getPathObj = function(path) {
-			
-			if(!(path instanceof Array)) {
-				path = this.path;
-			}
+
+			path = path instanceof Array ? path : this.path;
 			
 			var retObj = this.data;
 			if( path instanceof Array) {
 				for(var i=0;i<path.length;i++) {
 					retObj = retObj[path[i]];
-					if(typeof retObj === "undefined") {
-						break;
-					}
+					if(typeof retObj === "undefined") break;
 				}
 			}
 			return retObj;
@@ -62,9 +46,7 @@
 		this.setArray = function(keyArray, value) {
 			var leafKey = this.getPathObj();
 			for(var i=0;i<keyArray.length - 1;i++) {
-				if(typeof leafKey[keyArray[i]] === "undefined") {
-					leafKey[keyArray[i]] = {};
-				}
+				if(typeof leafKey[keyArray[i]] === "undefined") leafKey[keyArray[i]] = {};
 				leafKey = leafKey[keyArray[i]];
 			}
 			leafKey[keyArray[keyArray.length - 1]] = value;
@@ -78,23 +60,18 @@
 		}
 
 		this.checkKeyArray = function(keyArray) {
-			var isOK = true;
-			if(!(keyArray instanceof Array) || keyArray.length === 0) {
-				isOK = false;
-			}
+
+			var isOK = keyArray instanceof Array && keyArray.length !== 0;
+
 			keyArray.forEach(function(key) {
-				if(typeof key === "object") {
-					isOK = false;
-				}
+				isOK = typeof key === "object" ? false : isOK;
 			});
 			return isOK;
 		}
 
 		this.cloneObject = function (source) {
 			var target;
-			if(typeof source !== "object") {
-				target = source;	
-			}
+			if(typeof source !== "object") target = source;	
 			else if(source instanceof Date) {
 				target = new Date();
 				target.setTime(source.getTime());
@@ -105,19 +82,18 @@
 					target[i] = this.cloneObject(source[i]);
 				}
 			}
-			else if(!this.hasChild(source)){ //{}
-				target = {};
-			}
+			else if(!this.hasChild(source))	target = {};
+
 			return target;
 		}
 
 		this.equalObject = function (source, target) {
-			if(typeof source !== "object" || typeof target !== "object") {
+			if(typeof source !== "object" || typeof target !== "object")
 				return source === target;	
-			}
-			else if(source instanceof Date && target instanceof Date) {
+
+			else if(source instanceof Date && target instanceof Date)
 				return source.getTime() === target.getTime();
-			}
+
 			else if(source instanceof Array && target instanceof Array) {
 				for(var i=0;i<source.length;i++) {
 					if(!this.equalObject(source[i], target[i])) {
@@ -126,12 +102,10 @@
 				}
 				return true;
 			}
-			else if(!this.hasChild(source) && !this.hasChild(target)) {
-				return true;
-			}
-			else {
-				return false;
-			}
+
+			else if(!this.hasChild(source) && !this.hasChild(target)) return true;
+
+			else return false;
 
 		}
 
@@ -165,18 +139,17 @@
 			keyArray = argus.slice(0, -1);
 			value = argus[argus.length - 1];
 		}
-		if(!this.checkKeyArray(keyArray)) {
+		if(!this.checkKeyArray(keyArray)) 
 			throw Error("Key is not valid : " + keyArray);
-		}
+
 		return this.setArray(keyArray, value);
 	}
 	
 	api.prototype.get = function(key) {
 		
 		var _path = this.path;
-		if(arguments.length > 1) {
+		if(arguments.length > 1) 
 			key = [].slice.call(arguments);	
-		}
 		if(key instanceof Array) {
 			_path = this.path.concat(key.slice(0, -1));
 			key = key[key.length - 1];
@@ -185,18 +158,16 @@
 		
 		var pathObj = this.getPathObj(_path);
 
-		if(typeof pathObj === 'undefined') {
+		if(typeof pathObj === 'undefined')
 			return pathObj;
-		}
+
 		
 		if(this.hasChild(pathObj[key])) {
 			var subPath = _path.slice(0);
 			subPath.push(key);
 			return new api(this.data, subPath);
 		}
-		else {
-			return pathObj[key];
-		}
+		else return pathObj[key];
 	}
 	
 	
@@ -243,9 +214,9 @@
 		var path = arguments.length > 1 ? arguments[1] : undefined;
 		var keys = this.keys(path);
 		var obj = this.getPathObj(path);
-		if(!path instanceof Array) {
+		if(!path instanceof Array)
 			path = this.path;
-		}
+
 		keys.forEach(function(key) {
 			callback.call(this, key, obj[key], path);
 		}, this);
@@ -253,22 +224,19 @@
 	
 	api.prototype.forEachAll = function(callback) {
 		var path = arguments.length > 1 ? arguments[1] : undefined;
-		if(!(path instanceof Array)) {
+		if(!(path instanceof Array))
 			path = this.path;
-		}
+
 		var callEvenPath = arguments.length > 2 ? arguments[2] : undefined;
 		this.forEach(function(key, value, _path) {
 			if(this.hasChild(value)) {
-				if(callEvenPath) {
-					callback.call(this, key, value, _path);	
-				}
+				if(callEvenPath) callback.call(this, key, value, _path);
+
 				var subPath = _path.slice(0);
 				subPath.push(key);
 				this.forEachAll(callback, subPath, callEvenPath);
 			}
-			else {
-				callback.call(this, key, value, _path);
-			}
+			else callback.call(this, key, value, _path);
 		}, path);
 	}
 
@@ -281,9 +249,7 @@
 					subPath.push(key);
 					result.push(new api(this.data, subPath));	
 				}
-				else {
-					result.push(value);
-				}
+				else result.push(value);
 			}
 		}, undefined, true);
 		return result;
@@ -307,9 +273,7 @@
 			var snapKey = this.snapKey(path, key);
 			if(!this.equalObject(value, this.snapData[snapKey])) {
 				result = true;
-				if(callback) {
-					callback.call(this, key, value, this.snapData[snapKey], path);
-				}
+				if(callback) callback.call(this, key, value, this.snapData[snapKey], path);
 			}
 			var index = _snapshotKeys.indexOf(snapKey);
 			if(index >= 0) _snapshotKeys.splice(index, 1);
@@ -332,9 +296,8 @@
 	api.prototype.equal = function(obj) {
 		var result = true;
 		//check count of root's child
-		if(Object.keys(this.data).length !== Object.keys(obj).length) {
-			return false;
-		}
+		if(Object.keys(this.data).length !== Object.keys(obj).length) return false
+
 		this.forEachAll(function(key, value, path) {
 			var objValue = obj;
 			for(var i=0;i<path.length;i++) {
@@ -343,15 +306,11 @@
 			objValue = objValue[key];
 			//check child count
 			if(this.hasChild(value)) {
-				if(Object.keys(value).length !== Object.keys(objValue).length) {
-					result = false;
-				}
+				if(Object.keys(value).length !== Object.keys(objValue).length) result = false;
 			}
 			else {
 				//check value
-				if(!this.equalObject(value, objValue)) {
-					result = false;
-				}	
+				if(!this.equalObject(value, objValue)) result = false;	
 			}
 			
 		}, undefined, true);
