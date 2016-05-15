@@ -206,6 +206,15 @@ describe("Object Wrapper", function() {
 
 		});
 
+		it("Restore to snapshot", function() {
+			objectWrapper.snapshot();
+			objectWrapper.set(["add", "tools", "mac"], {});
+			expect(objectWrapper.changed()).toBe(true);
+			objectWrapper.restore();
+			expect(objectWrapper.changed()).toBe(false);
+
+		});
+
 		it("Foreach in Change function", function() {
 			objectWrapper.snapshot();
 			objectWrapper.set(["user", "add_property"], "added");

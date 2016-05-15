@@ -99,6 +99,18 @@ obj.changed(function(key, current, before, path) {
 });		// true
 ```
 
+Restore:
+
+```javascript
+obj.get("name").set("first", "Jin Hoon");
+obj.snapshot();
+obj.get("name").set("first", "Ha ram");
+obj.changed();				// true
+obj.restore();
+obj.get("name", "first");	// Jin Hoon
+obj.changed();				// false
+```
+
 Equal:
 
 ```javascript

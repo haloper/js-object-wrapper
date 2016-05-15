@@ -293,6 +293,15 @@
 		return result;
 	}
 
+	api.prototype.restore = function() {
+		this.data = {};
+		var snapshotKeys = Object.keys(this.snapData);
+		snapshotKeys.forEach(function(snapKey) {
+			var restoreSnapKey = this.restoreSnapKey(snapKey);
+			this.set(restoreSnapKey, this.snapData[snapKey]);
+		}, this);
+	}
+
 	api.prototype.equal = function(obj) {
 		var result = true;
 		//check count of root's child
