@@ -108,20 +108,6 @@
 			else return false;
 
 		}
-
-		this.snapKey = function(path, key) {
-			path.map(function(_path) {
-				return _path.replace(/_/g, "_\\");
-			})
-			key = key.replace(/_/g, "_\\");
-			return [].concat(path).concat([key]).join("_");
-		}
-
-		this.restoreSnapKey = function(snapKey) {
-			return snapKey.split(/_(?!\\)/).map(function(key) {
-				return key.replace(/_\\/g, "_");
-			});
-		}
 	}
 	
 	api.prototype.clear = function() {
@@ -339,8 +325,18 @@
 		return this;
 	}
 
-	api.prototype.getSnapKey = function(path, key) {
-		return this.snapKey(path, key);
+	api.prototype.snapKey = function(path, key) {
+		path.map(function(_path) {
+			return _path.replace(/_/g, "_\\");
+		})
+		key = key.replace(/_/g, "_\\");
+		return [].concat(path).concat([key]).join("_");
+	}
+
+	api.prototype.restoreSnapKey = function(snapKey) {
+		return snapKey.split(/_(?!\\)/).map(function(key) {
+			return key.replace(/_\\/g, "_");
+		});
 	}
 
 	return factory;
