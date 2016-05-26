@@ -96,8 +96,9 @@
 		return target;
 	}
 
-	//check equal two objects
-	api.prototype.equalObject = function (source, target) {
+	//Check equal two values
+	//This function can't check objects
+	api.prototype.equalValue = function (source, target) {
 		if(typeof source !== "object" || typeof target !== "object")
 			return source === target;	
 
@@ -106,7 +107,7 @@
 
 		else if(source instanceof Array && target instanceof Array) {
 			for(var i=0;i<source.length;i++) {
-				if(!this.equalObject(source[i], target[i])) {
+				if(!this.equalValue(source[i], target[i])) {
 					return false;
 				}
 			}
@@ -124,6 +125,7 @@
 	api.prototype.clear = function() {
 		this.data = {};
 		this.path = [];
+		this.snapData = {};
 	}
 	
 	//Set value
@@ -233,7 +235,7 @@
 		}, path);
 	}
 
-	//Find key
+	//Find key and return Array that has result
 	api.prototype.findKey = function(keyword) {
 		var result = [];
 		this.forEachAll(function(key, value, path) {
@@ -249,6 +251,7 @@
 		return result;
 	}
 	
+	//Make snapshot data
 	api.prototype.snapshot = function() {
 		this.snapData = {};
 		this.forEachAll(function(key, value, path) {
@@ -257,23 +260,24 @@
 		});
 	}
 
+	//Check the data have changed after snapshot
 	api.prototype.changed = function(callback) {
 		var result = false;
-		var size = 0;
 		var snapshotKeys = Object.keys(this.snapData);
 		this.forEachAll(function() {
-			var _snapshotKeys = snapshotKeys;
+			var _snapshotKeys = snapshotKeys; //closure
 			return function(key, value, path) {
-			var snapKey = this.snapKey(path, key);
-			if(!this.equalObject(value, this.snapData[snapKey])) {
-				result = true;
-				if(callback) callback.call(this, key, value, this.snapData[snapKey], path);
-			}
-			var index = _snapshotKeys.indexOf(snapKey);
-			if(index >= 0) _snapshotKeys.splice(index, 1);
-			size++;
+				var snapKey = this.snapKey(path, key);
+				if(!this.equalValue(value, this.snapData[snapKey])) {
+					result = true;
+					if(callback) callback.call(this, key, value, this.snapData[snapKey], path);
+				}
+				//Remove keys in the snapshotKeys after comparison
+				var index = _snapshotKeys.indexOf(snapKey);
+				if(index >= 0) _snapshotKeys.splice(index, 1);
 			}
 		}());
+		//Process remaining snapshot keys
 		if(snapshotKeys.length > 0) {
 			if(callback) {
 				snapshotKeys.forEach(function(snapKey) {
@@ -287,6 +291,7 @@
 		return result;
 	}
 
+	//Restore from snapshot data
 	api.prototype.restore = function() {
 		this.data = {};
 		var snapshotKeys = Object.keys(this.snapData);
@@ -296,6 +301,7 @@
 		}, this);
 	}
 
+	//Check this ObjectWrapper object to eqaul the other object 
 	api.prototype.equal = function(obj) {
 		var result = true;
 		//check count of root's child
@@ -313,18 +319,20 @@
 			}
 			else {
 				//check value
-				if(!this.equalObject(value, objValue)) result = false;	
+				if(!this.equalValue(value, objValue)) result = false;	
 			}
 			
 		}, undefined, true);
 		return result;
 	}
 
+	//From ObjectWrapper object(this) to map
 	api.prototype.toMap = function() {
 		this.snapshot();
 		return this.snapData;
 	}
 
+	//From map to ObjectWrapper object(this)
 	api.prototype.fromMap = function(map) {
 		for(var key in map) { 
 		    var array = this.restoreSnapKey(key);
@@ -333,6 +341,7 @@
 		return this;
 	}
 
+	//Generate snapKey, key values join with "_"
 	api.prototype.snapKey = function(path, key) {
 		path.map(function(_path) {
 			return _path.replace(/_/g, "_\\");
@@ -341,6 +350,7 @@
 		return [].concat(path).concat([key]).join("_");
 	}
 
+	//Restore snapKey
 	api.prototype.restoreSnapKey = function(snapKey) {
 		return snapKey.split(/_(?!\\)/).map(function(key) {
 			return key.replace(/_\\/g, "_");
