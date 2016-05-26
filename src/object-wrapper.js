@@ -60,7 +60,7 @@
 	//Check obj has child (other object)
 	api.prototype._hasChild = function(obj) {
 		return obj instanceof Object 
-			&& Object.keys(obj).length > 0
+			&& this.keys(obj).length > 0
 			&& !(obj instanceof Array);
 	}
 
@@ -91,7 +91,7 @@
 			}
 		}
 		else if(!this._hasChild(source)) target = {};
-		else throw Error("This object can't be cloned : " + source);
+		else throw TypeError("This object can't be cloned : " + source);
 
 		return target;
 	}
@@ -200,15 +200,24 @@
 		delete this._getPathObj()[key];
 	}
 	
-	//Get keys on the current path
-	api.prototype.keys = function(path) {
-		return Object.keys(this._getPathObj(path));
-	}
+	//Get keys in the obj
+	api.prototype.keys = function() {
+		if(Object.keys) return Object.keys;
+
+		return function(obj) {
+			if (typeof obj !== "object")
+			    throw new TypeError('obj have to be Object');
+			var keys=[], p;
+			for (p in obj) if (Object.prototype.hasOwnProperty.call(obj,p)) keys.push(p);
+			return keys;
+		}
+		
+	}();
 	
 	//Foreach all elements on the current path or the path from arguments
 	api.prototype.forEach = function(callback) {
 		var path = (arguments.length > 1 && arguments[1] instanceof Array) ? arguments[1] : this.path;
-		var keys = this.keys(path);
+		var keys = this.keys(this._getPathObj(path));
 		var obj = this._getPathObj(path);
 
 		keys.forEach(function(key) {
@@ -263,7 +272,7 @@
 	//Check the data have changed after snapshot
 	api.prototype.changed = function(callback) {
 		var result = false;
-		var snapshotKeys = Object.keys(this.snapData);
+		var snapshotKeys = this.keys(this.snapData);
 		this.forEachAll(function() {
 			var _snapshotKeys = snapshotKeys; //closure
 			return function(key, value, path) {
@@ -294,7 +303,7 @@
 	//Restore from snapshot data
 	api.prototype.restore = function() {
 		this.data = {};
-		var snapshotKeys = Object.keys(this.snapData);
+		var snapshotKeys = this.keys(this.snapData);
 		snapshotKeys.forEach(function(snapKey) {
 			var restoreSnapKey = this.restoreSnapKey(snapKey);
 			this.set(restoreSnapKey, this.snapData[snapKey]);
@@ -305,7 +314,7 @@
 	api.prototype.equal = function(obj) {
 		var result = true;
 		//check count of root's child
-		if(Object.keys(this.data).length !== Object.keys(obj).length) return false
+		if(this.keys(this.data).length !== this.keys(obj).length) return false
 
 		this.forEachAll(function(key, value, path) {
 			var objValue = obj;
@@ -315,7 +324,7 @@
 			objValue = objValue[key];
 			//check child count
 			if(this._hasChild(value)) {
-				if(Object.keys(value).length !== Object.keys(objValue).length) result = false;
+				if(this.keys(value).length !== this.keys(objValue).length) result = false;
 			}
 			else {
 				//check value
