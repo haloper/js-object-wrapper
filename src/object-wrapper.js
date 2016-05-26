@@ -28,127 +28,146 @@
 		this.data = typeof source === "object" ? source : {};
 
 		this.path = path instanceof Array ? path : [];		
+
+	}
+
+	//get obj from current path
+	api.prototype._getPathObj = function(path) {
+
+		path = path instanceof Array ? path : this.path;
 		
-		this.getPathObj = function(path) {
-
-			path = path instanceof Array ? path : this.path;
-			
-			var retObj = this.data;
-			if( path instanceof Array) {
-				for(var i=0;i<path.length;i++) {
-					retObj = retObj[path[i]];
-					if(typeof retObj === "undefined") break;
-				}
+		var retObj = this.data;
+		if(path instanceof Array) {
+			for(var i=0;i<path.length;i++) {
+				retObj = retObj[path[i]];
+				if(typeof retObj === "undefined") break;
 			}
-			return retObj;
 		}
-		
-		this.setArray = function(keyArray, value) {
-			var leafKey = this.getPathObj();
-			for(var i=0;i<keyArray.length - 1;i++) {
-				if(typeof leafKey[keyArray[i]] === "undefined") leafKey[keyArray[i]] = {};
-				leafKey = leafKey[keyArray[i]];
-			}
-			leafKey[keyArray[keyArray.length - 1]] = value;
-			return this;
-		}
-		
-		this.hasChild = function(obj) {
-			return obj instanceof Object 
-				&& Object.keys(obj).length > 0
-				&& !(obj instanceof Array);
-		}
-
-		this.checkKeyArray = function(keyArray) {
-
-			var isOK = keyArray instanceof Array && keyArray.length !== 0;
-
-			keyArray.forEach(function(key) {
-				isOK = typeof key === "object" ? false : isOK;
-			});
-			return isOK;
-		}
-
-		this.cloneObject = function (source) {
-			var target;
-			if(typeof source !== "object") target = source;	
-			else if(source instanceof Date) {
-				target = new Date();
-				target.setTime(source.getTime());
-			}
-			else if(source instanceof Array) {
-				target = [];
-				for(var i=0;i<source.length;i++) {
-					target[i] = this.cloneObject(source[i]);
-				}
-			}
-			else if(!this.hasChild(source))	target = {};
-
-			return target;
-		}
-
-		this.equalObject = function (source, target) {
-			if(typeof source !== "object" || typeof target !== "object")
-				return source === target;	
-
-			else if(source instanceof Date && target instanceof Date)
-				return source.getTime() === target.getTime();
-
-			else if(source instanceof Array && target instanceof Array) {
-				for(var i=0;i<source.length;i++) {
-					if(!this.equalObject(source[i], target[i])) {
-						return false;
-					}
-				}
-				return true;
-			}
-
-			else if(!this.hasChild(source) && !this.hasChild(target)) return true;
-
-			else return false;
-
-		}
+		return retObj;
 	}
 	
+	//set value to keyArray path
+	api.prototype._setArray = function(keyArray, value) {
+		var leafKey = this._getPathObj();
+		for(var i=0;i<keyArray.length - 1;i++) {
+			if(typeof leafKey[keyArray[i]] === "undefined") leafKey[keyArray[i]] = {};
+			leafKey = leafKey[keyArray[i]];
+		}
+		leafKey[keyArray[keyArray.length - 1]] = value;
+		return this;
+	}
+	
+	//Check obj has child (other object)
+	api.prototype._hasChild = function(obj) {
+		return obj instanceof Object 
+			&& Object.keys(obj).length > 0
+			&& !(obj instanceof Array);
+	}
+
+	//Check keys in the keyArray are correct
+	api.prototype._checkKeyArray = function(keyArray) {
+
+		var isOK = keyArray instanceof Array && keyArray.length !== 0;
+
+		keyArray.forEach(function(key) {
+			if(typeof key === "object") return false;
+		});
+		return isOK;
+	}
+
+	//clone object
+	//If source is an Array then this function will be called recursively
+	api.prototype.cloneObject = function (source) {
+		var target;
+		if(typeof source !== "object") target = source;	
+		else if(source instanceof Date) {
+			target = new Date();
+			target.setTime(source.getTime());
+		}
+		else if(source instanceof Array) {
+			target = [];
+			for(var i=0;i<source.length;i++) {
+				target[i] = this.cloneObject(source[i]);
+			}
+		}
+		else if(!this._hasChild(source)) target = {};
+		else throw Error("This object can't be cloned : " + source);
+
+		return target;
+	}
+
+	//check equal two objects
+	api.prototype.equalObject = function (source, target) {
+		if(typeof source !== "object" || typeof target !== "object")
+			return source === target;	
+
+		else if(source instanceof Date && target instanceof Date)
+			return source.getTime() === target.getTime();
+
+		else if(source instanceof Array && target instanceof Array) {
+			for(var i=0;i<source.length;i++) {
+				if(!this.equalObject(source[i], target[i])) {
+					return false;
+				}
+			}
+			return true;
+		}
+
+		//if source is {} and target is {}
+		else if(!this._hasChild(source) && !this._hasChild(target)) return true;
+
+		else return false;
+
+	}
+	
+	//Clear datas in the object
 	api.prototype.clear = function() {
 		this.data = {};
+		this.path = [];
 	}
 	
+	//Set value
 	api.prototype.set = function() {
 		var keyArray, value;
+		//set([key1, ..., keyN], value);
 		if(arguments.length == 2 && arguments[0] instanceof Array) {
 			keyArray = arguments[0];; 
 			value = arguments[1];
-		} 
+		}
+		//set(key1, ..., keyN, value);
 		else {
 			var argus = [].slice.call(arguments);
 			keyArray = argus.slice(0, -1);
 			value = argus[argus.length - 1];
 		}
-		if(!this.checkKeyArray(keyArray)) 
+
+		if(!this._checkKeyArray(keyArray)) 
 			throw Error("Key is not valid : " + keyArray);
 
-		return this.setArray(keyArray, value);
+		return this._setArray(keyArray, value);
 	}
 	
+	//Get value
 	api.prototype.get = function(key) {
 		
 		var _path = this.path;
+
+		//get(key1, ..., keyN) -> change key to Array
 		if(arguments.length > 1) 
 			key = [].slice.call(arguments);	
+
 		if(key instanceof Array) {
 			_path = this.path.concat(key.slice(0, -1));
 			key = key[key.length - 1];
 		}
 
-		
-		var pathObj = this.getPathObj(_path);
+		var pathObj = this._getPathObj(_path);
 
 		if(typeof pathObj === 'undefined')
 			return pathObj;
 
-		
-		if(this.hasChild(pathObj[key])) {
+		//if pathObj has child then return new obj-wrapper object
+		if(this._hasChild(pathObj[key])) {
 			var subPath = _path.slice(0);
 			subPath.push(key);
 			return new api(this.data, subPath);
@@ -168,54 +187,42 @@
 	}
 	
 	api.prototype.value = function() {
-		return this.getPathObj();
+		return this._getPathObj();
 	}
 	
 	api.prototype.contain = function(key) {
-		return typeof this.getPathObj()[key] !== "undefined";
+		return typeof this._getPathObj()[key] !== "undefined";
 	}
 	
 	api.prototype.remove = function(key) {
-		delete this.getPathObj()[key];
+		delete this._getPathObj()[key];
 	}
 	
+	//Get keys on the current path
 	api.prototype.keys = function(path) {
-		return Object.keys(this.getPathObj(path));
+		return Object.keys(this._getPathObj(path));
 	}
 	
-	api.prototype.values = function(path) {
-		if(typeof Object.values === "function") { //for firefox
-			return Object.values(this.getPathObj(path));
-		}
-		else {
-			var array = [];
-			this.forEach(function(key, value) {
-				array.push(value);
-			}, path);
-			return array;
-		}
-	}
-	
+	//Foreach all elements on the current path or the path from arguments
 	api.prototype.forEach = function(callback) {
-		var path = arguments.length > 1 ? arguments[1] : undefined;
+		var path = (arguments.length > 1 && arguments[1] instanceof Array) ? arguments[1] : this.path;
 		var keys = this.keys(path);
-		var obj = this.getPathObj(path);
-		if(!path instanceof Array)
-			path = this.path;
+		var obj = this._getPathObj(path);
 
 		keys.forEach(function(key) {
 			callback.call(this, key, obj[key], path);
 		}, this);
 	}
 	
+	//Foreach all elements in the all keys of the object
 	api.prototype.forEachAll = function(callback) {
-		var path = arguments.length > 1 ? arguments[1] : undefined;
-		if(!(path instanceof Array))
-			path = this.path;
+		var path = (arguments.length > 1 && arguments[1] instanceof Array) ? arguments[1] : this.path;
 
-		var callEvenPath = arguments.length > 2 ? arguments[2] : undefined;
+		//Call callback function on the all path that even don't have child.
+		var callEvenPath = arguments.length > 2 && arguments[2];
+
 		this.forEach(function(key, value, _path) {
-			if(this.hasChild(value)) {
+			if(this._hasChild(value)) {
 				if(callEvenPath) callback.call(this, key, value, _path);
 
 				var subPath = _path.slice(0);
@@ -226,11 +233,12 @@
 		}, path);
 	}
 
+	//Find key
 	api.prototype.findKey = function(keyword) {
 		var result = [];
 		this.forEachAll(function(key, value, path) {
 			if(keyword.test(key)) {
-				if(this.hasChild(value)) {
+				if(this._hasChild(value)) {
 					var subPath = path.slice(0);
 					subPath.push(key);
 					result.push(new api(this.data, subPath));	
@@ -300,7 +308,7 @@
 			}
 			objValue = objValue[key];
 			//check child count
-			if(this.hasChild(value)) {
+			if(this._hasChild(value)) {
 				if(Object.keys(value).length !== Object.keys(objValue).length) result = false;
 			}
 			else {

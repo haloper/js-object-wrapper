@@ -1,50 +1,5 @@
 describe("Object Wrapper", function() {
 	var ObjectWrapper = window.ObjectWrapper.noConflict();
-	
-	describe("Simple objectWrapper Structure", function() {
-		var objectWrapper;
-		beforeEach(function() {
-			objectWrapper = ObjectWrapper();
-			objectWrapper.set("user name", "hoon")
-			.set("sex", "male")
-			.set(",.!@#$%^&*()';[]\<>/ - key", ",.!@#$%^&*()';[]\<>/ - value");
-		});
-
-		it("Get existent key", function() {
-			
-			expect(objectWrapper.contain("user name")).toBe(true);
-			expect(objectWrapper.contain("sex")).toBe(true);
-			
-			expect(objectWrapper.get("user name")).toEqual("hoon");
-			expect(objectWrapper.get("sex")).toEqual("male");
-			
-			objectWrapper.set("user name", "hoony");
-			expect(objectWrapper.get("user name")).toEqual("hoony");
-			
-		});
-		
-		it("Get non-existent key", function() {
-			objectWrapper.remove(" user name");
-			expect(objectWrapper.contain("user name")).toBe(true);
-			objectWrapper.remove("user name");
-			expect(objectWrapper.contain("user name")).toBe(false);
-			expect(objectWrapper.get("user name")).toBe(undefined);
-		});
-		
-		it("Get keys and values", function() {
-			expect(objectWrapper.keys().length > 0).toBe(true);
-			expect(objectWrapper.values().length > 0).toBe(true);
-		});
-		
-		it("Foreach should work well", function() {
-			var count = 0;
-			objectWrapper.forEach(function(key, value) {
-				expect(value).toBe(objectWrapper.get(key));
-				count++;
-			});
-			expect(count).toBe(objectWrapper.keys().length);
-		});
-	});
 
 	describe("Init object", function() {
 

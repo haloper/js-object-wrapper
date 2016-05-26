@@ -1,11 +1,11 @@
 {
-  "name": "config",
+  "name": "object-wrapper",
   "version": "0.0.1",
-  "description": "Javascript API to manage config information",
-  "main": "src/js-config.js",
+  "description": "Object Wrapper",
+  "main": "src/object-wrapper.js",
   "keywords": [
-    "config",
-    "js-config",
+    "object",
+    "wrapper",
     "amd",
     "commonjs",
     "client"
