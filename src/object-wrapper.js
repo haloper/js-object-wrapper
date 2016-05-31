@@ -168,8 +168,9 @@
 		if(typeof pathObj === 'undefined')
 			return pathObj;
 
+		if(typeof key === 'undefined') return this;
 		//if pathObj has child then return new obj-wrapper object
-		if(this._hasChild(pathObj[key])) {
+		else if(this._hasChild(pathObj[key])) {
 			var subPath = _path.slice(0);
 			subPath.push(key);
 			return new api(this.data, subPath);
@@ -314,12 +315,12 @@
 	api.prototype.equal = function(obj) {
 		var result = true;
 		//check count of root's child
-		if(this.keys(this.data).length !== this.keys(obj).length) return false
+		if(this.keys(this._getPathObj()).length !== this.keys(obj).length) return false
 
 		this.forEachAll(function(key, value, path) {
 			var objValue = obj;
 			for(var i=0;i<path.length;i++) {
-				objValue = objValue[path[i]];
+				objValue = objValue[path[i]] || objValue;
 			}
 			objValue = objValue[key];
 			//check child count

@@ -298,7 +298,23 @@ describe("Object Wrapper", function() {
  			expect(function() {
  				objectWrapper.set("aaa");
  			}).toThrow();
- 		})
+ 		});
+
+ 		it("Check forEachAll on child", function() {
+ 			var count = 0;
+ 			objectWrapper.get("user", "name").forEachAll(function() {
+ 				count++;
+ 			});
+ 			expect(count).toBe(3);
+ 		});
+
+ 		it("Check equal on child", function() {
+ 			expect(objectWrapper.get("user").equal(objectWrapper.get("user").value())).toBe(true);
+ 		});
+
+ 		it("Get object from empty array", function() {
+			expect(objectWrapper.get([]).equal(objectWrapper.value())).toBe(true);
+ 		});
 
 	});
 	
