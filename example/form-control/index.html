@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Object Wrapper - Form Control Example</title>
+    <style type="text/css">
+      div {
+        margin : 10px 0;
+      }
+      label {
+        margin-right : 20px;
+      }
+    </style>
+  </head>
+  <body>
+    
+    <div class="container">
+      <h3>User Info</h3>
+      <form>
+        <div>
+          <label for="name_first">First Name</label>
+          <input type="text" id="name_first" placeholder="First Name">
+        </div>
+        <div>
+          <label for="name_last">Last Name</label>
+          <input type="text" id="name_last" placeholder="Last Name">
+        </div>
+        <div>
+          <label for="sex">Sex</label>
+          <label>
+            <input type="radio" name="sex" id="sex_male" value="male">
+            Male
+          </label>
+          <label>
+            <input type="radio" name="sex" id="sex_female" value="female">
+            Female
+          </label>
+        </div>
+        <div>
+          <label for="age">Age</label>
+          <input type="number" id="age">
+        </div>
+        <div>
+          <label for="sex">Interest</label>
+          <label>
+            <input type="checkbox" name="interest" id="interest_exercise" value="exercise">
+            Exercise
+          </label>
+          <label>
+            <input type="checkbox" name="interest" id="interest_movie" value="movie">
+            Movie
+          </label>
+          <label>
+            <input type="checkbox" name="interest" id="interest_music" value="music">
+            Music
+          </label>
+        </div>
+        <div>
+          <button type="button" id="save" disabled="disabled">Save changes</button>
+          <button type="button" id="reset" disabled="disabled">Reset</button>
+        </div>
+      </form>
+    </div>
+
+    <script src="../../src/object-wrapper.js"></script>
+    <script src="main.js"></script>
+  </body>
+</html>
