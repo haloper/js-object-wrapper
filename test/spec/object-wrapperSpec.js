@@ -316,6 +316,14 @@ describe("Object Wrapper", function() {
 			expect(objectWrapper.get([]).equal(objectWrapper.value())).toBe(true);
  		});
 
+ 		it("Check changed when array value change to empty", function() {
+ 			expect(objectWrapper.equalValue([], ["a"])).toBe(false);
+ 			objectWrapper.snapshot();
+ 			objectWrapper.set(["user", "hobby"], []);
+ 			expect(objectWrapper.changed()).toBe(true);
+
+ 		});
+
 	});
 	
 

@@ -106,6 +106,7 @@
 			return source.getTime() === target.getTime();
 
 		else if(source instanceof Array && target instanceof Array) {
+			if(source.length != target.length) return false;
 			for(var i=0;i<source.length;i++) {
 				if(!this.equalValue(source[i], target[i])) {
 					return false;
