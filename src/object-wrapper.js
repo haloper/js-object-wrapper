@@ -99,7 +99,9 @@
 	//Check equal two values
 	//This function can't check objects
 	api.prototype.equalValue = function (source, target) {
-		if(typeof source !== "object" || typeof target !== "object")
+
+		if(source === target) return true;
+		else if(typeof source !== "object" || typeof target !== "object")
 			return source === target;	
 
 		else if(source instanceof Date && target instanceof Date)
